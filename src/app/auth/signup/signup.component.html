@@ -6,6 +6,7 @@
       placeholder="Your email" 
       ngModel 
       name="email"
+      email
       required
       #emailInput="ngModel">
       <mat-error *ngIf="emailInput.hasError('required')">Field must not be empty</mat-error>
@@ -18,7 +19,7 @@
       ngModel 
       name="password"
       minlength="6" 
-      #pwInput="ngModel" />
+      #pwInput="ngModel">
       <mat-hint align="end">{{ pwInput.value?.length }} / 6</mat-hint>
       <mat-error>Should be at least 6 characters long</mat-error>
     </mat-form-field>
