@@ -6,6 +6,7 @@
       placeholder="Your email" 
       ngModel 
       name="email"
+      email
       required
       #emailInput="ngModel">
       <mat-error *ngIf="emailInput.hasError('required')">Field must not be empty</mat-error>
