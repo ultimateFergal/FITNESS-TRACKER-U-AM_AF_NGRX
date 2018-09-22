@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { StopTrainingComponent } from './stop-training.component';
 
@@ -10,6 +10,7 @@ import { StopTrainingComponent } from './stop-training.component';
 })
 export class CurrentTrainingComponent implements OnInit {
 
+  @Output() trainingExit = new EventEmitter<void>();
   progress = 0;
   // timer: number;
   timer;
@@ -17,18 +18,35 @@ export class CurrentTrainingComponent implements OnInit {
 
   ngOnInit() {
 
+    this.startOrResumeTimer();
+
+  }
+
+  startOrResumeTimer() {
     this.timer = setInterval(() => {// No importa que tenga error cuando timer es tipo number, es de javascript
       this.progress += 5;
       if (this.progress >= 100) {
         clearInterval(this.timer);
       }
     }, 1000);
-
   }
 
   onStop() {
     clearInterval(this.timer);
-    this.dialog.open(StopTrainingComponent);
+    const dialogRef = this.dialog.open(StopTrainingComponent, {
+      data: {
+      progress: this.progress
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      if (result) {
+        this.trainingExit.emit();
+      } else {
+        this.startOrResumeTimer();
+      }
+    });
   }
 
 }
