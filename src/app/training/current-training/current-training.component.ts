@@ -30,6 +30,7 @@ export class CurrentTrainingComponent implements OnInit {
     this.timer = setInterval(() => {// No importa que tenga error cuando timer es tipo number, es de javascript
       this.progress += 5;
       if (this.progress >= 100) {
+        this.trainingService.completeExercise();
         clearInterval(this.timer);
       }
     }, step);
@@ -46,7 +47,8 @@ export class CurrentTrainingComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log(result);
       if (result) {
-        this.trainingExit.emit();
+        this.trainingService.cancelExercise(this.progress);
+        // this.trainingExit.emit();
       } else {
         this.startOrResumeTimer();
       }
