@@ -11,6 +11,7 @@ export class TrainingService {
 
     exerciseChanged = new Subject<Exercise>();
     exercisesChanged = new Subject<Exercise[]>();
+    finishedExercisesChanged = new Subject<Exercise[]>();
 
     private availableExercises: Exercise[] = [
         { id: 'crunches', name: 'Crunches', duration: 30, calories: 8 },
@@ -19,9 +20,10 @@ export class TrainingService {
         { id: 'burpees', name: 'Burpees', duration: 60, calories: 8 }
     ];
     private runningExercise: Exercise;
-    private exercises: Exercise[] = [];
+    // private exercises: Exercise[] = [];
+    // private finishedExercises: Exercise[] = [];
 
-    constructor(private db: AngularFirestore) {}
+    constructor(private db: AngularFirestore) { }
 
     // getAvailableExercises() {
     fetchAvailableExercises() {
@@ -49,12 +51,14 @@ export class TrainingService {
     }
 
     startExercise(selectedId: string) {
+        // this.db.doc('availableExercises/' + selectedId).update({ lastSelected: new Date()}); //Adds field to a document
         this.runningExercise = this.availableExercises.find(ex => ex.id === selectedId);
         this.exerciseChanged.next({ ...this.runningExercise });
     }
 
     completeExercise() {
-        this.exercises.push({
+        // this.exercises.push({
+        this.addDataToDatabase({
             ...this.runningExercise,
             date: new Date(),
             state: 'completed'
@@ -64,13 +68,14 @@ export class TrainingService {
     }
 
     cancelExercise(progress: number) {
-        this.exercises.push({
+        // this.exercises.push({
+        this.addDataToDatabase({
             ...this.runningExercise,
             duration: this.runningExercise.duration * (progress / 100),
             calories: this.runningExercise.calories * (progress / 100),
             date: new Date(),
             state: 'canceled'
-        });
+        }); //
         this.runningExercise = null;
         this.exerciseChanged.next(null);
     }
@@ -79,11 +84,23 @@ export class TrainingService {
         return { ...this.runningExercise };
     }
 
+    /*
     getCompletedOrCancelledExercises() {
         return this.exercises.slice();
     }
+    */
+
+    fetchCompletedOrCancelledExercises() {
+        return this.db
+            .collection('finishedExercises')
+            .valueChanges()
+            .subscribe((exercises: Exercise[]) => {
+                // this.finishedExercises = exercises;
+                this.finishedExercisesChanged.next(exercises);
+            });
+    }
 
     private addDataToDatabase(exercise: Exercise) {
-        
+        this.db.collection('finishedExercises').add(exercise);
     }
 }
